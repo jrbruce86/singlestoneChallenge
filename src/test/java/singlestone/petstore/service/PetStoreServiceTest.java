@@ -194,8 +194,6 @@ public class PetStoreServiceTest {
         final ClientFacingException exceptionMock = Mockito.mock(ClientFacingException.class);
         final ServerResponseFactoryService serverResponseFactoryServiceMock = Mockito.mock(ServerResponseFactoryService.class);
         exceptionHandlingServiceMock =  Mockito.spy(new ExceptionHandlingService(serverResponseFactoryServiceMock));
-        //Mockito.when(exceptionHandlingServiceMock.createClientFriendlyException(Mockito.any(), Mockito.any(Exception.class))).thenReturn(exceptionMock);
-        //Mockito.when(exceptionHandlingServiceMock.createClientFriendlyException(Mockito.any(), Mockito.any(ErrorType.class))).thenReturn(exceptionMock);
         Mockito.when(exceptionHandlingServiceMock.createClientFriendlyExceptionMain(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(exceptionMock);
         return exceptionHandlingServiceMock;
     }

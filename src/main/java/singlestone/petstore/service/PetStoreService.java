@@ -29,7 +29,6 @@ public class PetStoreService {
     }
 
     public void storeOrderDetails(final PetStoreOrder petStoreOrder) throws Exception {
-        logger.info("Trying to save order: {}", petStoreOrder);
         // Make sure all of the products are valid
         final Set<PetStoreItem> items = petStoreOrder.getItems();
         for(PetStoreItem item : items) {
@@ -39,13 +38,12 @@ public class PetStoreService {
                         String.format("Error, could not find product with id %s. Check the endpoint for the available products", item.getProductId()),
                         ErrorType.NOT_FOUND);
             }
-            logger.info("item quantity: {}", item.getQuantity());
             if(item.getQuantity() < 0) {
                 throw exceptionHandlingService.createClientFriendlyException(
                         String.format("Error cannot add item, %s, with negative quantity of %d", product.getDescription(), item.getQuantity()),
                         ErrorType.BAD_REQUEST);
             }
-            logger.info("Successfully found product, {}", product);
+            logger.trace("Successfully found product, {}", product);
         }
         try {
             petStoreOrderRepository.save(petStoreOrder);
@@ -55,7 +53,6 @@ public class PetStoreService {
     }
 
     public PetStoreOrder findOrder(final String id) throws Exception {
-        logger.info("Looking up id {}", id);
         try {
             return petStoreOrderRepository.findById(id).orElse(null);
         } catch(final Exception e) {

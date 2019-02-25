@@ -24,7 +24,6 @@ public class ExceptionHandlingService {
     }
 
     public ClientFacingException createClientFriendlyException(final String description, final ErrorType errorType) {
-        logger.info("here!!!!");
         return createClientFriendlyExceptionMain(description, errorType, null);
     }
 
@@ -40,7 +39,6 @@ public class ExceptionHandlingService {
             case BAD_REQUEST:
                 return createClientExceptionResponse(exception, HttpStatus.BAD_REQUEST);
             case UNKNOWN_ERROR:
-                logger.info("In the global exception handler... unknown error!");
                 return createClientExceptionResponse(exception, HttpStatus.INTERNAL_SERVER_ERROR);
             default:
                 logger.warn("Unsupported error type, {}, passed into global exception handler.", errorType);
