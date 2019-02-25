@@ -6,3 +6,5 @@ To compile and run use the following command:
 To run the tests use the following
 
   ./gradlew test --rerun-tasks --full-stacktrace
+
+The tests run through PostMan can be accessed at the following link: https://www.getpostman.com/collections/934031b8f0340f3d8511
