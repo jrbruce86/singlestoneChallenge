@@ -8,8 +8,9 @@ import org.springframework.web.bind.annotation.*;
 import singlestone.petstore.model.PetStoreOrder;
 import singlestone.petstore.model.PetStoreOrderDetails;
 import singlestone.petstore.model.PetStoreProduct;
-import singlestone.petstore.service.PetStoreService;
+import singlestone.petstore.service.PetStoreOrderService;
 import singlestone.petstore.service.ServerResponseFactoryService;
+import singlestone.petstore.service.productService.PetStoreProductService;
 
 import java.util.Set;
 
@@ -19,23 +20,28 @@ public class PetStoreController {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private final PetStoreService petStoreService;
+    private final PetStoreOrderService petStoreOrderService;
     private final ServerResponseFactoryService serverResponseFactoryService;
+    private final PetStoreProductService petStoreProductService;
 
     /**
      * Constructor
-     * @param petStoreService
+     *
+     * @param petStoreOrderService
      * @param serverResponseFactoryService
+     * @param petStoreProductService
      */
-    PetStoreController(final PetStoreService petStoreService,
-                       final ServerResponseFactoryService serverResponseFactoryService) {
-        this.petStoreService = petStoreService;
+    PetStoreController(final PetStoreOrderService petStoreOrderService,
+                       final ServerResponseFactoryService serverResponseFactoryService,
+                       final PetStoreProductService petStoreProductService) {
+        this.petStoreOrderService = petStoreOrderService;
         this.serverResponseFactoryService = serverResponseFactoryService;
+        this.petStoreProductService = petStoreProductService;
     }
 
     @PostMapping
     public ResponseEntity createOrder(final @RequestBody PetStoreOrder petStoreOrder) throws Exception {
-        petStoreService.storeOrderDetails(petStoreOrder);
+        petStoreOrderService.storeOrderDetails(petStoreOrder);
         return serverResponseFactoryService.createServerResponse(
                 HttpStatus.ACCEPTED,
                 "Order saved successfully",
@@ -44,7 +50,7 @@ public class PetStoreController {
 
     @GetMapping("{id}")
     public ResponseEntity getOrder(final @PathVariable("id") String id) throws Exception {
-        final PetStoreOrderDetails petStoreOrderDetails = petStoreService.computeOrderDetails(id);
+        final PetStoreOrderDetails petStoreOrderDetails = petStoreOrderService.computeOrderDetails(id);
         return serverResponseFactoryService.createServerPayloadOnlyResponse(
                 HttpStatus.OK,
                 petStoreOrderDetails);
@@ -52,7 +58,7 @@ public class PetStoreController {
 
     @GetMapping
     public ResponseEntity getAvailableProducts() throws Exception {
-        final Set<PetStoreProduct> availableProducts = petStoreService.getAvailableProducts();
+        final Set<PetStoreProduct> availableProducts = petStoreProductService.getAvailableProducts();
         return serverResponseFactoryService.createServerPayloadOnlyResponse(
                 HttpStatus.OK,
                 availableProducts);

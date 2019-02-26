@@ -1,38 +1,37 @@
 package singlestone.petstore.service;
 
-import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import singlestone.petstore.model.*;
 import singlestone.petstore.persist.PetStoreOrderRepository;
-import singlestone.petstore.persist.PetStoreProductRepository;
+import singlestone.petstore.service.productService.PetStoreProductService;
 
 import java.util.Objects;
 import java.util.Set;
 
 @Service
-public class PetStoreService {
+public class PetStoreOrderService {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final PetStoreOrderRepository petStoreOrderRepository;
     private final ExceptionHandlingService exceptionHandlingService;
-    private final PetStoreProductRepository petStoreProductRepository;
+    private final PetStoreProductService petStoreProductService;
 
-    PetStoreService(final PetStoreOrderRepository petStoreOrderRepository,
-                    final ExceptionHandlingService exceptionHandlingService,
-                    final PetStoreProductRepository petStoreProductRepository) {
+    PetStoreOrderService(final PetStoreOrderRepository petStoreOrderRepository,
+                                final ExceptionHandlingService exceptionHandlingService,
+                                final PetStoreProductService petStoreProductService) {
         this.petStoreOrderRepository = petStoreOrderRepository;
         this.exceptionHandlingService = exceptionHandlingService;
-        this.petStoreProductRepository = petStoreProductRepository;
+        this.petStoreProductService = petStoreProductService;
     }
 
     public void storeOrderDetails(final PetStoreOrder petStoreOrder) throws Exception {
         // Make sure all of the products are valid
         final Set<PetStoreItem> items = petStoreOrder.getItems();
         for(PetStoreItem item : items) {
-            final PetStoreProduct product = findPetStoreProduct(item.getProductId());
+            final PetStoreProduct product = petStoreProductService.findPetStoreProduct(item.getProductId());
             if(Objects.isNull(product)) {
                 throw exceptionHandlingService.createClientFriendlyException(
                         String.format("Error, could not find product with id %s. Check the endpoint for the available products", item.getProductId()),
@@ -60,14 +59,6 @@ public class PetStoreService {
         }
     }
 
-    public Set<PetStoreProduct> getAvailableProducts() throws Exception {
-        try {
-            return Sets.newHashSet(petStoreProductRepository.findAll());
-        } catch(final Exception e) {
-            throw exceptionHandlingService.createClientFriendlyException("There was an unknown error while looking up available products.", e);
-        }
-    }
-
     public PetStoreOrderDetails computeOrderDetails(final String id) throws Exception {
         final PetStoreOrder petStoreOrder = findOrder(id);
         if(Objects.isNull(petStoreOrder)) {
@@ -78,7 +69,7 @@ public class PetStoreService {
         final Set<PetStoreItem> petStoreItems = petStoreOrder.getItems();
         float totalCost = 0f;
         for(final PetStoreItem petStoreItem: petStoreItems) {
-            final PetStoreProduct petStoreProduct = findPetStoreProduct(petStoreItem.getProductId());
+            final PetStoreProduct petStoreProduct = petStoreProductService.findPetStoreProduct(petStoreItem.getProductId());
             totalCost += (petStoreProduct.getCostInDollars() * petStoreItem.getQuantity());
         }
         return createOrderDetails()
@@ -90,11 +81,4 @@ public class PetStoreService {
         return new PetStoreOrderDetails();
     }
 
-    private PetStoreProduct findPetStoreProduct(final String productId) throws Exception {
-        try {
-            return petStoreProductRepository.findById(productId).orElse(null);
-        } catch(final Exception e) {
-            throw exceptionHandlingService.createClientFriendlyException(String.format("An unknown error occurred while looking product with id %s", productId), e);
-        }
-    }
 }

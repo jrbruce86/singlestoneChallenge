@@ -9,32 +9,33 @@ import singlestone.petstore.exception.ClientFacingException;
 import singlestone.petstore.model.*;
 import singlestone.petstore.persist.PetStoreOrderRepository;
 import singlestone.petstore.persist.PetStoreProductRepository;
+import singlestone.petstore.service.productService.PetStoreProductService;
 
 import java.util.Optional;
 
-public class PetStoreServiceTest {
+public class PetStoreOrderServiceTest {
 
     // The mocks
     private PetStoreOrderRepository petStoreOrderRepositoryMock;
     private ExceptionHandlingService exceptionHandlingServiceMock;
-    private PetStoreProductRepository petStoreProductRepositoryMock;
+    private PetStoreProductService petStoreProductServiceMock;
 
     // The object being tested
-    private PetStoreService objectUnderTest;
+    private PetStoreOrderService objectUnderTest;
 
     @Before
     public void createDefaultMocks() {
         petStoreOrderRepositoryMock = Mockito.mock(PetStoreOrderRepository.class);
         exceptionHandlingServiceMock = mockExceptionHandlingService();
-        petStoreProductRepositoryMock = Mockito.mock(PetStoreProductRepository.class);
+        petStoreProductServiceMock = Mockito.mock(PetStoreProductService.class);
         initObjectUnderTest();
     }
 
     void initObjectUnderTest() {
-        objectUnderTest = new PetStoreService(
+        objectUnderTest = new PetStoreOrderService(
                 petStoreOrderRepositoryMock,
                 exceptionHandlingServiceMock,
-                petStoreProductRepositoryMock);
+                petStoreProductServiceMock);
 
     }
 
@@ -168,9 +169,9 @@ public class PetStoreServiceTest {
                                        final String productId,
                                        final Integer quantity,
                                        final Float cost,
-                                       final String description) {
+                                       final String description) throws Exception {
         final PetStoreProduct petStoreProduct1Mock = createProductMock(productId, description, cost);
-        Mockito.when(petStoreProductRepositoryMock.findById(productId)).thenReturn(Optional.of(petStoreProduct1Mock));
+        Mockito.when(petStoreProductServiceMock.findPetStoreProduct(productId)).thenReturn(petStoreProduct1Mock);
         return createItemMock(itemId, productId, quantity);
     }
 
